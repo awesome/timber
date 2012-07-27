@@ -10,9 +10,11 @@ Gem::Specification.new do |s|
   s.authors     = ["Cory Schires"]
   s.email       = ["coryschires@gmail.com"]
   s.homepage    = "https://github.com/scholastica/timber"
-  s.summary     = "Easily create activity logs for admin dashboards and whatnot"
-  s.description = "Easily create activity logs"
-
+  s.summary     = "Timber helps you create flexible, unobtrusive activity logs using rails notifications."
+  s.description = %{
+    Timber helps you create flexible, unobtrusive activity logs using rails notifications. Timber is best for
+    making the type of logs you normally see on an administrative dashboard.
+  }
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
 

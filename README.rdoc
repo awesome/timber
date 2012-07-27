@@ -77,6 +77,9 @@ Next, create a yaml file to specify your templates in +config/locales/timber.en.
       create: "<%= owner.name %> created a post titled <%= trackable.title %>"
       update: "<%= owner.name %> edited <%= trackable.title %>: <%= parameters[:editorial_comment] %>"
 
+      # You can use `p` as a shorthand for `parameters`
+      destroy: "<%= owner.name %> deleted <%= trackable.title %>: <%= p[:editorial_comment] %>"
+
 
 Then you'll need to somehow fetch a collection of activities. Timber deliberately adds no magical methods to you models: you'll need to write them yourself. An +activities+ association, for example, might look like:
 
