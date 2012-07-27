@@ -116,6 +116,6 @@ This gem is a based on {public_activity}[https://github.com/pokonski/public_acti
 == License
 This project uses {MIT-LICENSE}[https://github.com/scholastica/timber/blob/master/MIT-LICENSE].
 
-{http://docs.scholastica.s3.amazonaws.com/scholastica_footer_logo.png}[[https://scholasticahq.com]]
+{http://docs.scholastica.s3.amazonaws.com/scholastica_footer_logo.png}[https://scholasticahq.com]
 
 <i>Timber is an open source project built by {Scholastica}[https://scholasticahq.com]</i>
