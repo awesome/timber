@@ -1,6 +1,6 @@
 http://docs.scholastica.s3.amazonaws.com/timber.png
 
-Timber helps you create flexible, unobtrusive activity logs in a rails application. Timber is best for making the type of logs you normally see on an administrative dashboard:
+Timber helps you create flexible, unobtrusive activity logs using rails notifications. Timber is best for making the type of logs you normally see on an administrative dashboard:
 
   Sally drafted "A snowy night in the woods"
   Jim edited "A snowy night in the woods"
@@ -33,7 +33,9 @@ Let's say your application has authors, posts, and publishers:
     has_many :authors
   end
 
-Now say we want to create a log item whenever a post is created or updated. First, you need to set up an initializer at +config/initializers/timber.rb+:
+And you want to create a log item whenever a post is created or updated.
+
+First, you need to set up an initializer at +config/initializers/timber.rb+:
 
   Timber.registration do
 
@@ -88,7 +90,7 @@ And display the log items in your view:
   </ul>
 
 
-=== Dirty details about the +Timber::Activity+ model
+=== More about the <tt>Timber::Activity</tt> model
 
 +Timber::Activity+ has two polymorphic associations: +trackable+ and +owner+. You're free to use them however you like. That said, the +trackable+ associations is intended to be the object that is being acted on (i.e. created, updated, destroyed, etc).
 
