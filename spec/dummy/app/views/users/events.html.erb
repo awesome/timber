@@ -1,5 +1,8 @@
 <ul>
   <% @activities.each do |activity| %>
-    <li><%= activity.text.html_safe %></li>
+    <li>
+      <%= activity.text.html_safe %> 
+      (<%= time_ago_in_words(activity.created_at) %> ago)
+    </li>
   <% end %>
 </ul>

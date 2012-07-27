@@ -2,13 +2,13 @@ http://docs.scholastica.s3.amazonaws.com/timber.png
 
 Timber helps you create flexible, unobtrusive activity logs using rails notifications. Timber is best for making the type of logs you normally see on an administrative dashboard:
 
-  Sally drafted "A snowy night in the woods"
-  Jim edited "A snowy night in the woods"
-  Frank published "Autumnal Bliss"
+  Sally drafted "A snowy night in the woods" (about 2 hours ago)
+  Jim edited "A snowy night in the woods" (about 6 hours ago)
+  Frank published "Autumnal Bliss" (2 days ago)
   Andy... and so on
 
 == Installation
-Include the gem to your Gemfile:
+Include the gem to your +Gemfile+:
   gem 'timber'
 
 Install and run the necessary migrations:
@@ -36,7 +36,7 @@ Let's say your application has authors, posts, and publishers:
 And you want to create a log item whenever a post is created or updated.
 
 First, you need to set up an initializer at +config/initializers/timber.rb+.
-
+```ruby
   Timber.registration do
     subscribe "posts#create" do |event|
       post = Post.find_by_title(event.params[:post][:title])
@@ -48,27 +48,29 @@ First, you need to set up an initializer at +config/initializers/timber.rb+.
       )
     end
   end
+```
 
-Inside the +Timber.registration+ block, you can +subscribe+ to as many +controller#action+ events as you like. In order to create an activity record, each subscription should include a call to <tt>Timber::Activity.create</tt>:
+Inside the +Timber.registration+ block, you can +subscribe+ to as many <tt>controller#action</tt> events as you like. In order to create an activity record, however, each subscription should include a call to <tt>Timber::Activity.create</tt>:
 
   Timber::Activity.create(
     # The object being acted on (i.e. created, updated, etc.). Polymorphic association.
     trackable: post,
 
-    # The object being acted on (i.e. created, updated, etc.). Polymorphic association.
+    # The owner (i.e. often the person doing the work). Polymorphic association.
     owner: post.publisher,
 
-    # The key path to use when looking up the text template in +timber.en.yml+
+    # The key string used to lookup the text template in +timber.en.yml+
     key: "timber.posts.create",
 
     # A serialized hash of arbitrary data. This is a good place to stuff miscellaneous
     # data in order to cut down on database queries when rendering the activity +text+.
-    # But keep in mind that {active record doesn't make it easy to query serialized
+    # But keep in mind that ActiveRecord doesn't make it easy to query serialized. See:
+    # http://stackoverflow.com/questions/9814622
     parameters: { author_name: post.author.name }
   )
 
 
-Next, create a yaml file to specify your templates in +config/locales/timber.en.yml+. Within this file, you have access to the activity instance, allowing you to make dynamic activity messages:
+Next, create a yaml file to specify your templates in +config/locales/timber.en.yml+. Within this file, you have access to the activity instance, allowing your messages to mix static and dynamic content:
 
   timber:
     posts:
@@ -76,7 +78,7 @@ Next, create a yaml file to specify your templates in +config/locales/timber.en.
       update: "<%= owner.name %> edited <%= trackable.title %>: <%= parameters[:editorial_comment] %>"
 
 
-Then you'll need to somehow fetch a collection of activities. Timber deliberately add no magical methods to you models; you'll need to write them yourself. An +activities+ association, for example, might look like:
+Then you'll need to somehow fetch a collection of activities. Timber deliberately adds no magical methods to you models: you'll need to write them yourself. An +activities+ association, for example, might look like:
 
   has_many :activities, foreign_key: :owner_id, class_name: 'Timber::Activity'
 
@@ -84,8 +86,11 @@ Then you'll need to somehow fetch a collection of activities. Timber deliberatel
 Finally, you need to display the activities in your view:
 
   <ul>
-    <% @publisher.activities.each do |item| %>
-      <li><%= item.text %></li>
+    <% @publisher.activities.each do |activity| %>
+      <li>
+        <%= activity.text %>
+        (<%= time_ago_in_words(activity.created_at) %> ago)
+      </li>
     <% end %>
   </ul>
 
@@ -95,7 +100,7 @@ Fork the project, make your changes, and submit a pull request. Please ensure th
 
   rspec .
 
-This gem is a based on {public_activity}[https://github.com/pokonski/public_activity]. Thanks to @pokonski for his good ideas, especially the use of i18n for generating the activity text.
+This gem is a based on {public_activity}[https://github.com/pokonski/public_activity]. Thanks to {@pokonski}[https://github.com/pokonski] for his good ideas, especially the use of i18n for generating the activity text.
 
 == License
 
