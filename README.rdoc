@@ -114,5 +114,7 @@ Fork the project, make your changes, and submit a pull request. Please ensure th
 This gem is a based on {public_activity}[https://github.com/pokonski/public_activity]. Thanks to {@pokonski}[https://github.com/pokonski] for his good ideas, especially the use of i18n for generating the activity text.
 
 == License
-
 This project uses {MIT-LICENSE}[https://github.com/scholastica/timber/blob/master/MIT-LICENSE].
+
+http://docs.scholastica.s3.amazonaws.com/scholastica_footer_logo.png
+<i>Timber is an open source project built by Scholastica, LLC</i>
