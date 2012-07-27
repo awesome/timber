@@ -117,8 +117,8 @@ This gem is a based on {public_activity}[https://github.com/pokonski/public_acti
 
 == TODO
 * Currently, timber expects your current user method to be +current_user+. This should be configurable.
-* When editing an object, it would be really nice if the +event+ contained information about what changed (e.g. <i>Jim update the post title from "Snowy Night" to "Snowing Evening"</i>).
-* Support for HAML style interpolation within +timber.en.yml+ in addition to plain old ERB.
+* When editing an object, it would be really nice if the +event+ contained information about what changed, allowing you to do things like: <i>Jim updated the post title from "Snowy Night" to "Snowing Evening"</i>.
+* Support for HAML style interpolation within +timber.en.yml+ in addition to ERB.
 
 == License
 Timber is an open source project built by {Scholastica, LLC}[https://scholasticahq.com]
