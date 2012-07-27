@@ -50,7 +50,7 @@ describe Timber do
       @activity.parameters[:user_name].should == "Willa Cather"
     end
     it "should set the activity text" do
-      @activity.text.should == "Willa Cather update a post: &ldquo;My Antonia&rdquo;"
+      @activity.text.should == "Willa Cather updated a post: &ldquo;My Antonia&rdquo;"
     end
   end
 
