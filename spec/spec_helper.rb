@@ -10,6 +10,7 @@ Dir[File.join(ENGINE_RAILS_ROOT, 'spec/support/**/*.rb')].each { |f| require f }
 
 RSpec.configure do |config|
 
+  # Include +publish_notification+ method for unit testing Timber activities
   config.include Timber::NotificationHelpers
 
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures

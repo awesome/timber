@@ -36,7 +36,7 @@ Let's say your application has authors, posts, and publishers:
 And you want to create a log item whenever a post is created or updated.
 
 First, you need to set up an initializer at +config/initializers/timber.rb+.
-```ruby
+
   Timber.registration do
     subscribe "posts#create" do |event|
       post = Post.find_by_title(event.params[:post][:title])
@@ -48,7 +48,7 @@ First, you need to set up an initializer at +config/initializers/timber.rb+.
       )
     end
   end
-```
+
 
 Inside the +Timber.registration+ block, you can +subscribe+ to as many <tt>controller#action</tt> events as you like. In order to create an activity record, however, each subscription should include a call to <tt>Timber::Activity.create</tt>:
 
@@ -93,6 +93,17 @@ Finally, you need to display the activities in your view:
       </li>
     <% end %>
   </ul>
+
+
+== Testing your activities
+Testing activities is sorta tricky since it crosses the entire stack. Integration tests, however, are not a good option since a large application may subscribe to hundreds of activities. In most cases then, writing an integration test for each activity is just not feasible.
+
+Instead, I suggest you devise a way to unit test your subscriptions. To make things a bit easier, you can include <tt>Timber::NotificationHelpers</tt> in your <tt>RSpec.configure</tt> block:
+
+  # Include +publish_notification+ method for unit testing Timber activities
+  config.include Timber::NotificationHelpers
+
+This module provide a +publish_notification+ method which allows you to publish a notification, specifying a controller, action, and request params. You can find {example usage in the test suite}[https://github.com/scholastica/timber/blob/master/spec/timber/timber_spec.rb].
 
 
 == Contributing
