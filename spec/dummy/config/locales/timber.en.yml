@@ -1,0 +1,3 @@
+timber:
+  post:
+    create: "<%= owner.name %> created a post: &ldquo;<%= trackable.title %>&rdquo;"

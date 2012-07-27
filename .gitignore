@@ -1,0 +1,18 @@
+# gem bundler stuff
+.bundle/
+
+# ignore all log files
+log/*.log
+
+# Textmate
+tmtags
+
+# Mac OSX hidden files
+.DS_Store
+
+# Misc
+pkg/
+spec/dummy/db/*.sqlite3
+spec/dummy/log/*.log
+spec/dummy/tmp/
+spec/dummy/.sass-cache

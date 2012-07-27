@@ -1,0 +1,95 @@
+http://docs.scholastica.s3.amazonaws.com/timber.png
+
+Timber helps you create flexible, unobtrusive activity logs in a rails application. Timber is best for making the type of logs you normally see on an administrative dashboard:
+
+  Sally drafted "A snowy night in the woods"
+  Jim edited "A snowy night in the woods"
+  Frank published "Autumnal Bliss"
+  Andy... and so on
+
+=== Installation
+Include the gem to your Gemfile:
+  gem 'timber'
+
+Install and run the necessary migrations:
+  rake timber_engine:install:migrations
+  rake db:migrate
+
+=== Usage
+Let's say your application has authors, posts, and publishers:
+
+  class Author < ActiveRecord::Base
+    belongs_to :publisher
+    has_many :posts
+  end
+
+  class Post < ActiveRecord::Base
+    belongs_to :publisher
+    belongs_to :author
+  end
+
+  class Publisher < ActiveRecord::Base
+    has_many :posts
+    has_many :authors
+  end
+
+Now say we want to create a log item whenever a post is created or updated. First, you need to set up an initializer at +config/initializers/timber.rb+:
+
+  Timber.registration do
+
+    subscribe "posts#create" do |event|
+      post = Post.find_by_title(event.params[:post][:title])
+      Timber::Activity.create(
+        trackable: post,
+        owner: post.publisher,
+        key: "timber.posts.create",
+        parameters: { author_name: post.author.name }
+      )
+    end
+
+    subscribe "posts#update" do |event|
+      post = Post.find(event.params[:post_id])
+      Timber::Activity.create(
+        trackable: post,
+        owner: post.publisher,
+        key: "timber.posts.update",
+        parameters: {
+          author_name: post.author.name,
+          editorial_comment: 'Corrected misspelling'
+        }
+      )
+    end
+
+  end
+
+Next, create a yaml file to specify your templates in +config/locales/timber+:
+
+  # Within in a given snippet, you can interpolate values by calling methods off the activity:
+  #
+  timber:
+    posts:
+      create: "<%= owner.name %> created a post titled <%= trackable.title %>"
+      update: "<%= owner.name %> edited <%= trackable.title %>: <%= parameters[:editorial_comment] %>"
+
+
+Add an association in your model:
+
+  class Publisher
+    has_many :activities, foreign_key: :owner_id, class_name: 'Timber::Activity'
+  end
+
+
+And display the log items in your view:
+
+  <ul>
+    <%= @publisher.activities.each do |item| %>
+      <li><% item.text %></li>
+    <% end %>
+  </ul>
+
+
+=== Dirty details about the +Timber::Activity+ model
+
++Timber::Activity+ has two polymorphic associations: +trackable+ and +owner+. You're free to use them however you like. That said, the +trackable+ associations is intended to be the object that is being acted on (i.e. created, updated, destroyed, etc).
+
++Timber::Activity+ also includes a serialized +parameters+ column. This is a good place to stuff miscellaneous data in order to cut down on database queries when rendering the activity +text+. But keep in mind that {active record doesn't make it easy to query serialized data}[http://stackoverflow.com/questions/9814622/].
