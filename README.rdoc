@@ -7,7 +7,7 @@ Timber helps you create flexible, unobtrusive activity logs using rails notifica
   Frank published "Autumnal Bliss"
   Andy... and so on
 
-=== Installation
+== Installation
 Include the gem to your Gemfile:
   gem 'timber'
 
@@ -15,7 +15,7 @@ Install and run the necessary migrations:
   rake timber_engine:install:migrations
   rake db:migrate
 
-=== Usage
+== Usage
 Let's say your application has authors, posts, and publishers:
 
   class Author < ActiveRecord::Base
@@ -35,10 +35,9 @@ Let's say your application has authors, posts, and publishers:
 
 And you want to create a log item whenever a post is created or updated.
 
-First, you need to set up an initializer at +config/initializers/timber.rb+:
+First, you need to set up an initializer at +config/initializers/timber.rb+.
 
   Timber.registration do
-
     subscribe "posts#create" do |event|
       post = Post.find_by_title(event.params[:post][:title])
       Timber::Activity.create(
@@ -48,50 +47,56 @@ First, you need to set up an initializer at +config/initializers/timber.rb+:
         parameters: { author_name: post.author.name }
       )
     end
-
-    subscribe "posts#update" do |event|
-      post = Post.find(event.params[:post_id])
-      Timber::Activity.create(
-        trackable: post,
-        owner: post.publisher,
-        key: "timber.posts.update",
-        parameters: {
-          author_name: post.author.name,
-          editorial_comment: 'Corrected misspelling'
-        }
-      )
-    end
-
   end
 
-Next, create a yaml file to specify your templates in +config/locales/timber+:
+Inside the +Timber.registration+ block, you can +subscribe+ to as many +controller#action+ events as you like. In order to create an activity record, each subscription should include a call to <tt>Timber::Activity.create</tt>:
 
-  # Within in a given snippet, you can interpolate values by calling methods off the activity:
-  #
+  Timber::Activity.create(
+    # The object being acted on (i.e. created, updated, etc.). Polymorphic association.
+    trackable: post,
+
+    # The object being acted on (i.e. created, updated, etc.). Polymorphic association.
+    owner: post.publisher,
+
+    # The key path to use when looking up the text template in +timber.en.yml+
+    key: "timber.posts.create",
+
+    # A serialized hash of arbitrary data. This is a good place to stuff miscellaneous
+    # data in order to cut down on database queries when rendering the activity +text+.
+    # But keep in mind that {active record doesn't make it easy to query serialized
+    parameters: { author_name: post.author.name }
+  )
+
+
+Next, create a yaml file to specify your templates in +config/locales/timber.en.yml+. Within this file, you have access to the activity instance, allowing you to make dynamic activity messages:
+
   timber:
     posts:
       create: "<%= owner.name %> created a post titled <%= trackable.title %>"
       update: "<%= owner.name %> edited <%= trackable.title %>: <%= parameters[:editorial_comment] %>"
 
 
-Add an association in your model:
+Then you'll need to somehow fetch a collection of activities. Timber deliberately add no magical methods to you models; you'll need to write them yourself. An +activities+ association, for example, might look like:
 
-  class Publisher
-    has_many :activities, foreign_key: :owner_id, class_name: 'Timber::Activity'
-  end
+  has_many :activities, foreign_key: :owner_id, class_name: 'Timber::Activity'
 
 
-And display the log items in your view:
+Finally, you need to display the activities in your view:
 
   <ul>
-    <%= @publisher.activities.each do |item| %>
-      <li><% item.text %></li>
+    <% @publisher.activities.each do |item| %>
+      <li><%= item.text %></li>
     <% end %>
   </ul>
 
 
-=== More about the <tt>Timber::Activity</tt> model
+== Contributing
+Fork the project, make your changes, and submit a pull request. Please ensure the tests pass:
 
-+Timber::Activity+ has two polymorphic associations: +trackable+ and +owner+. You're free to use them however you like. That said, the +trackable+ associations is intended to be the object that is being acted on (i.e. created, updated, destroyed, etc).
+  rspec .
 
-+Timber::Activity+ also includes a serialized +parameters+ column. This is a good place to stuff miscellaneous data in order to cut down on database queries when rendering the activity +text+. But keep in mind that {active record doesn't make it easy to query serialized data}[http://stackoverflow.com/questions/9814622/].
+This gem is a based on {public_activity}[https://github.com/pokonski/public_activity]. Thanks to @pokonski for his good ideas, especially the use of i18n for generating the activity text.
+
+== License
+
+This project uses {MIT-LICENSE}[https://github.com/scholastica/timber/blob/master/MIT-LICENSE].

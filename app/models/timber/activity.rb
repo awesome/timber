@@ -8,38 +8,37 @@ module Timber
     attr_accessible :key, :owner, :parameters, :trackable
 
     def self.template
-      YAML.load_file("#{Rails.root}/config/locales/activity_logger.en.yml")
+      YAML.load_file("#{Rails.root}/config/locales/timber.en.yml")
     end
 
     def text(params = {})
       begin
-        erb_template = resolveTemplate(key)
-        if !erb_template.nil?
-          parameters.merge! params
+        erb_template = resolve_template(key)
+        if erb_template.nil?
+          "Could not locate template"
+        else
+          parameters.merge!(params)
           renderer = ERB.new(erb_template)
           renderer.result(binding)
-        else
-          "Template not defined"
         end
-      rescue
-        "Template not defined"
+      rescue => error
+        Rails.logger.warn error.message
+        puts error.message
+        puts error.backtrace
+        "There was a problem rendering activity message"
       end
     end
 
     private
 
-    def resolveTemplate(key)
-      res = nil
-      if !self.template.nil?
+    def resolve_template(key)
+      snippet = nil
+      unless Activity.template.nil?
         key.split(".").each do |k|
-          if res.nil?
-            res = self.template[k]
-          else
-            res = res[k]
-          end
+          snippet = snippet.nil? ? Activity.template[k] : snippet[k]
         end
       end
-      res
+      snippet
     end
 
   end

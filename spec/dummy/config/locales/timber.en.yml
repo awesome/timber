@@ -1,3 +1,4 @@
 timber:
-  post:
+  posts:
     create: "<%= owner.name %> created a post: &ldquo;<%= trackable.title %>&rdquo;"
+    update: "<%= owner.name %> updated a post: &ldquo;<%= trackable.title %>&rdquo;"
