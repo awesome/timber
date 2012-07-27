@@ -64,8 +64,8 @@ Inside the +Timber.registration+ block, you can +subscribe+ to as many <tt>contr
 
     # A serialized hash of arbitrary data. This is a good place to stuff miscellaneous
     # data in order to cut down on database queries when rendering the activity +text+.
-    # But keep in mind that ActiveRecord doesn't make it easy to query serialized. See:
-    # http://stackoverflow.com/questions/9814622
+    # But keep in mind that ActiveRecord doesn't make it easy to query serialized data
+    # (see: http://stackoverflow.com/questions/9814622).
     parameters: { author_name: post.author.name }
   )
 
@@ -103,7 +103,7 @@ Instead, I suggest you devise a way to unit test your subscriptions. To make thi
   # Include +publish_notification+ method for unit testing Timber activities
   config.include Timber::NotificationHelpers
 
-This module provide a +publish_notification+ method which allows you to publish a notification, specifying a controller, action, and request params. You can find {example usage in the test suite}[https://github.com/scholastica/timber/blob/master/spec/timber/timber_spec.rb].
+This module provides a +publish_notification+ method which allows you to publish a notification – specifying a controller, action, current_user and request params. You can find {example usage in the test suite}[https://github.com/scholastica/timber/blob/master/spec/timber/timber_spec.rb].
 
 
 == Contributing
