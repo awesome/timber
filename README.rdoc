@@ -76,7 +76,6 @@ Next, create a yaml file to specify your templates in +config/locales/timber.en.
     posts:
       create: "<%= owner.name %> created a post titled <%= trackable.title %>"
       update: "<%= owner.name %> edited <%= trackable.title %>: <%= parameters[:editorial_comment] %>"
-
       # You can use `p` as a shorthand for `parameters`
       destroy: "<%= owner.name %> deleted <%= trackable.title %>: <%= p[:editorial_comment] %>"
 
