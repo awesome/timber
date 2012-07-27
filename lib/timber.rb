@@ -1,7 +1,7 @@
 require "timber/engine"
 require "timber/notification_payload_customizations"
 require "timber/notification_payload_processor"
-require_relative "../spec/support/notification_helpers"
+require "timber/rspec/notification_helpers"
 
 module Timber
 

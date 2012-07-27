@@ -1,6 +1,6 @@
 module Timber
   class Activity < ActiveRecord::Base
-    set_table_name :timber_activities
+    self.table_name_prefix = 'timber_'
 
     belongs_to :trackable, :polymorphic => true
     belongs_to :owner, :polymorphic => true
