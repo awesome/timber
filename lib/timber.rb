@@ -10,11 +10,13 @@ module Timber
     alias_method :register, :instance_eval
   end
 
-  def self.subscribe(controller_action, &block)
-    ActiveSupport::Notifications.subscribe "process_action.action_controller" do |name, start, finish, id, payload|
-      event = Timber::NotificationPayloadProcessor.new(payload)
-      if event.processed?(controller_action)
-        block.call(event)
+  def self.subscribe(*controller_actions, &block)
+    controller_actions.each do |controller_action|
+      ActiveSupport::Notifications.subscribe "process_action.action_controller" do |name, start, finish, id, payload|
+        event = Timber::NotificationPayloadProcessor.new(payload)
+        if event.processed?(controller_action)
+          block.call(event)
+        end
       end
     end
   end
