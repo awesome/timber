@@ -1,6 +1,6 @@
 http://docs.scholastica.s3.amazonaws.com/timber.png
 
-Timber helps you create flexible, unobtrusive activity logs using rails notifications. Timber is best for making the type of logs you normally see on an administrative dashboard:
+Timber helps you create flexible, unobtrusive activity logs using {Rails notifications}[http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html]. Timber is best for making the type of logs you normally see on an administrative dashboard:
 
   Sally drafted "A snowy night in the woods" (about 2 hours ago)
   Jim edited "A snowy night in the woods" (about 6 hours ago)
@@ -37,36 +37,39 @@ And you want to create a log item whenever a post is created or updated.
 
 First, you need to set up an initializer at +config/initializers/timber.rb+.
 
-  Timber.registration do
+  Timber.register do
     subscribe "posts#create" do |event|
       post = Post.find_by_title(event.params[:post][:title])
-      Timber::Activity.create(
+      event.log(
         trackable: post,
         owner: post.publisher,
         key: "timber.posts.create",
-        parameters: { author_name: post.author.name }
+        parameters: { link_to_author: link_to(event.current_user.name, author_path(event.current_user)) }
       )
     end
   end
 
 
-Inside the +Timber.registration+ block, you can +subscribe+ to as many <tt>controller#action</tt> events as you like. In order to create an activity record, however, each subscription should include a call to <tt>Timber::Activity.create</tt>:
+Inside the +Timber.registration+ block, you can +subscribe+ to as many <tt>controller#action</tt> events as you like. Also, notice that you have access to your applications custom url helpers (e.g. +author_path+) as well as built-in helpers (e.g. +link_to+). You can also access the current user off the event object (+event.current_user+).
 
-  Timber::Activity.create(
+In order to create an activity record, each subscription should include a call to <tt>event.log</tt>:
+
+  event.log(
     # The object being acted on (i.e. created, updated, etc.). Polymorphic association.
     trackable: post,
 
     # The owner (i.e. often the person doing the work). Polymorphic association.
     owner: post.publisher,
 
-    # The key string used to lookup the text template in +timber.en.yml+
+    # The key string used to lookup the text template in +timber.en.yml+. If omit this option, it will
+    # default to `timber.#{event.controller}.#{event.action}`
     key: "timber.posts.create",
 
     # A serialized hash of arbitrary data. This is a good place to stuff miscellaneous
     # data in order to cut down on database queries when rendering the activity +text+.
     # But keep in mind that ActiveRecord doesn't make it easy to query serialized data
     # (see: http://stackoverflow.com/questions/9814622).
-    parameters: { author_name: post.author.name }
+    parameters: { link_to_author: link_to(event.current_user.name, author_path(event.current_user)) }
   )
 
 
@@ -74,10 +77,10 @@ Next, create a yaml file to specify your templates in +config/locales/timber.en.
 
   timber:
     posts:
-      create: "<%= owner.name %> created a post titled <%= trackable.title %>"
-      update: "<%= owner.name %> edited <%= trackable.title %>: <%= parameters[:editorial_comment] %>"
+      create: "<%= parameters[:link_to_author] %> created a post titled <%= trackable.title %>"
       # You can use `p` as a shorthand for `parameters`
-      destroy: "<%= owner.name %> deleted <%= trackable.title %>: <%= p[:editorial_comment] %>"
+      update: "<%= p[:link_to_author] %> edited <%= trackable.title %>"
+
 
 
 Then you'll need to somehow fetch a collection of activities. Timber deliberately adds no magical methods to you models: you'll need to write them yourself. An +activities+ association, for example, might look like:
@@ -97,8 +100,37 @@ Finally, you need to display the activities in your view:
   </ul>
 
 
+== Tips
+=== Avoid lookups when when rendering activity messages
+The +parameters+ hash should be used to store whatever data necessary to render your activity message. Following this pattern will prevent slow page loads (especially if you're preforming joins, etc). For example, let's say you're logging the creation of a post:
+
+  event.log(
+    trackable: post,
+    owner: event.current_user,
+    parameters: {
+      link_to_user_profile: link_to(event.current_user.name, event.current_user.id),
+      link_to_post: link_to(post.title, post.id)
+    }
+  )
+
+Then your +timber.yml+ should look like:
+
+  <%= p[:link_to_user_profile] %> drafted a post titled: <%= p[:link_to_post] %>
+
+We're pulling everything we need directly off the +activity.parameters+. No additional lookups, joins, etc.
+
+=== Keep view rendering logic out of +timber.yml+.
+If you need links and whatnot, you should construct them in your initializer (i.e. +timber.rb+) and definitely not in your template (i.e. +timber.yml+).
+
+  # Good
+  <%= p[:link_to_user_profile] %> drafted a post titled: <%= p[:link_to_post] %>
+
+  # Awful
+  <a href=<%= "/users/#{owner.id}"%>><%= owner.name %></a> drafted a post titled: <a href=<%= "/posts/#{trackable.id}"%>><%= trackable.title %></a>
+
+
 == Testing your activities
-Testing activities is sorta tricky since it crosses the entire stack. Integration tests, however, are not a good option since a large application may subscribe to hundreds of activities. In most cases then, writing an integration test for each activity is just not feasible.
+Testing activities is sorta tricky since it crosses the entire stack. Integration tests, however, are not a good option since a large application may subscribe to scores of activities. In most cases then, writing an integration test for each activity is just not feasible.
 
 Instead, I suggest you devise a way to unit test your subscriptions. To make things a bit easier, you can include <tt>Timber::NotificationHelpers</tt> in your <tt>RSpec.configure</tt> block:
 
@@ -123,6 +155,4 @@ This gem is a based on {public_activity}[https://github.com/pokonski/public_acti
 == License
 Timber is an open source project built by {Scholastica, LLC}[https://scholasticahq.com]
 
-http://docs.scholastica.s3.amazonaws.com/scholastica_footer_logo.png
-
-<i>This project uses {MIT-LICENSE}[https://github.com/scholastica/timber/blob/master/MIT-LICENSE].</i>
+<i>This project uses {MIT-LICENSE}[https://github.com/scholastica/timber/blob/master/MIT-LICENSE].</i> http://docs.scholastica.s3.amazonaws.com/github_scholastica_footer_logo.png

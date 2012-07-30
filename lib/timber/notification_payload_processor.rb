@@ -8,6 +8,15 @@ module Timber
       @params = @payload[:params]
     end
 
+    def log(attributes)
+      Timber::Activity.create(
+        trackable: attributes[:trackable],
+        owner: attributes[:owner],
+        key: attributes[:key] || "timber.#{controller}.#{action}",
+        parameters: attributes[:parameters]
+      )
+    end
+
     def current_user
       User.find(payload[:current_user_id]) if payload[:current_user_id]
     end
@@ -15,8 +24,6 @@ module Timber
     def processed?(controller_action)
       controller_action == "#{controller}##{action}"
     end
-
-    private
 
     def controller
       params[:controller]
