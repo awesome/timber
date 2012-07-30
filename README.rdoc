@@ -50,7 +50,7 @@ First, you need to set up an initializer at +config/initializers/timber.rb+.
   end
 
 
-Inside the +Timber.registration+ block, you can +subscribe+ to as many <tt>controller#action</tt> events as you like. Also, notice that you have access to your applications custom url helpers (e.g. +author_path+) as well as built-in helpers (e.g. +link_to+). You can also access the current user off the event object (+event.current_user+).
+Inside the +Timber.registration+ block, you can +subscribe+ to as many <tt>controller#action</tt> events as you like. Also, notice that you have access to your applications custom url helpers (e.g. +author_path+) as well as built-in helpers (e.g. +link_to+). You can also access the current user off the event object (i.e. +event.current_user+).
 
 In order to create an activity record, each subscription should include a call to <tt>event.log</tt>:
 
@@ -61,12 +61,12 @@ In order to create an activity record, each subscription should include a call t
     # The owner (i.e. often the person doing the work). Polymorphic association.
     owner: post.publisher,
 
-    # The key string used to lookup the text template in +timber.en.yml+. If omit this option, it will
+    # The key string used to lookup the text template in +timber.en.yml+. If omitted, it will
     # default to `timber.#{event.controller}.#{event.action}`
     key: "timber.posts.create",
 
     # A serialized hash of arbitrary data. This is a good place to stuff miscellaneous
-    # data in order to cut down on database queries when rendering the activity +text+.
+    # data in order to cut down on database queries when rendering the activity `text`.
     # But keep in mind that ActiveRecord doesn't make it easy to query serialized data
     # (see: http://stackoverflow.com/questions/9814622).
     parameters: { link_to_author: link_to(event.current_user.name, author_path(event.current_user)) }
@@ -88,7 +88,7 @@ Then you'll need to somehow fetch a collection of activities. Timber deliberatel
   has_many :activities, foreign_key: :owner_id, class_name: 'Timber::Activity'
 
 
-Finally, you need to display the activities in your view:
+Finally, you'll want to display the activities in your view:
 
   <ul>
     <% @publisher.activities.each do |activity| %>
@@ -100,9 +100,9 @@ Finally, you need to display the activities in your view:
   </ul>
 
 
-== Tips
+== Best Practices
 === Avoid lookups when when rendering activity messages
-The +parameters+ hash should be used to store whatever data necessary to render your activity message. Following this pattern will prevent slow page loads (especially if you're preforming joins, etc). For example, let's say you're logging the creation of a post:
+The +parameters+ hash should be used to store whatever data is required to render your activity message. Doing so will prevent slow page loads (especially if you're preforming complicated joins, etc). For example, let's say you're logging the creation of a post:
 
   event.log(
     trackable: post,
@@ -119,7 +119,7 @@ Then your +timber.yml+ should look like:
 
 We're pulling everything we need directly off the +activity.parameters+. No additional lookups, joins, etc.
 
-=== Keep view rendering logic out of +timber.yml+.
+=== Keep view rendering logic out of your yaml template
 If you need links and whatnot, you should construct them in your initializer (i.e. +timber.rb+) and definitely not in your template (i.e. +timber.yml+).
 
   # Good
@@ -128,6 +128,8 @@ If you need links and whatnot, you should construct them in your initializer (i.
   # Awful
   <a href=<%= "/users/#{owner.id}"%>><%= owner.name %></a> drafted a post titled: <a href=<%= "/posts/#{trackable.id}"%>><%= trackable.title %></a>
 
+=== Use numerical ids rather than pretty urls when adding links to your activity messages
+This doesn't apply unless you're using something like {friendly_id}[https://github.com/norman/friendly_id] to generate pretty urls. Generally, however, you should use ordinary numerical ids to reference objects within your activity messages. This will help protect your links from breaking due to data changes over time.
 
 == Testing your activities
 Testing activities is sorta tricky since it crosses the entire stack. Integration tests, however, are not a good option since a large application may subscribe to scores of activities. In most cases then, writing an integration test for each activity is just not feasible.
@@ -153,6 +155,6 @@ This gem is a based on {public_activity}[https://github.com/pokonski/public_acti
 * Support for HAML style interpolation within +timber.en.yml+ in addition to ERB.
 
 == License
-Timber is an open source project built by {Scholastica, LLC}[https://scholasticahq.com]
+Timber is an open source project built by {Scholastica}[https://scholasticahq.com] under the {MIT-LICENSE}[https://github.com/scholastica/timber/blob/master/MIT-LICENSE].
 
-<i>This project uses {MIT-LICENSE}[https://github.com/scholastica/timber/blob/master/MIT-LICENSE].</i> http://docs.scholastica.s3.amazonaws.com/github_scholastica_footer_logo.png
+http://docs.scholastica.s3.amazonaws.com/github_scholastica_footer_logo.png
