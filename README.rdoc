@@ -101,7 +101,7 @@ Finally, you'll want to display the activities in your view:
 
 
 == Best Practices
-=== Avoid lookups when when rendering activity messages
+=== Minimize database queries when rendering activity messages
 The +parameters+ hash should be used to store whatever data is required to render your activity message. Doing so will prevent slow page loads (especially if you're preforming complicated joins, etc). For example, let's say you're logging the creation of a post:
 
   event.log(
