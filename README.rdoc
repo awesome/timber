@@ -131,6 +131,21 @@ If you need links and whatnot, you should construct them in your initializer (i.
 === Use numerical ids rather than pretty urls when adding links to your activity messages
 This doesn't apply unless you're using something like {friendly_id}[https://github.com/norman/friendly_id] to generate pretty urls. Generally, however, you should use ordinary numerical ids to reference objects within your activity messages. This will help protect your links from breaking due to data changes over time.
 
+== Creating an activity outside of the timber initializer
+In the timber initializer, you can easily create activities whenever an action is completed. Sometimes, however, you need to create activities that are not tied to controller logic (e.g. in an +after_save+).
+
+It's easy enough to create a timber activity directly:
+
+      Timber::Activity.create(
+        trackable: @lumberjack,
+        owner: @lumberjack.saw_mill,
+        key: "timber.path.to.template",
+        parameters: {
+          user_name: 'Paul Bunyan',
+          user_friends: ['Blue Ox']
+        }
+      )
+
 == Testing your activities
 Testing activities is sorta tricky since it crosses the entire stack. Integration tests, however, are not a good option since a large application may subscribe to scores of activities. In most cases then, writing an integration test for each activity is just not feasible.
 
