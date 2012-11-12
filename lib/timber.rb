@@ -14,9 +14,7 @@ module Timber
     controller_actions.each do |controller_action|
       ActiveSupport::Notifications.subscribe "process_action.action_controller" do |name, start, finish, id, payload|
         event = Timber::NotificationPayloadProcessor.new(payload)
-        if event.processed?(controller_action)
-          block.call(event)
-        end
+        block.call(event) if event.processed?(controller_action) && event.payload[:exception].blank?
       end
     end
   end
