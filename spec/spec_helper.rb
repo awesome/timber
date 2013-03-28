@@ -11,6 +11,10 @@ Dir[File.join(ENGINE_RAILS_ROOT, 'spec/support/**/*.rb')].each { |f| require f }
 
 RSpec.configure do |config|
 
+  # Reduce the default wait time so tests don't have to wait.
+  #
+  Timber.default_wait_time = 0.1
+
   # Include +publish_notification+ method for unit testing Timber activities
   config.include Timber::NotificationHelpers
 

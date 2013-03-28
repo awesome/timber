@@ -77,16 +77,19 @@ describe Timber do
       end
     end
 
-    describe "wait_until" do
+    describe "patient_lookup" do
       it "should raise a timeout error if the code fails to execute" do
         lambda {
-          Timber.wait_until { true }
+          Timber.patient_lookup { true }
         }.should_not raise_error
       end
       it "should not raise a timeout error if the code succeeds" do
         lambda {
-          Timber.wait_until { false }
+          Timber.patient_lookup { false }
         }.should raise_error(Timeout::Error)
+      end
+      it "should return the result of the yielded block" do
+        Timber.patient_lookup { 1 }.should == 1
       end
     end
   end
