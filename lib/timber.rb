@@ -2,7 +2,6 @@ require "timber/engine"
 require "timber/notification_payload_customizations"
 require "timber/notification_payload_processor"
 require "timber/rspec/notification_helpers"
-require 'pry'
 
 module Timber
 
@@ -19,12 +18,18 @@ module Timber
     end
   end
 
-  # Allows you to trigger a subscribe method without having to actually move through the controller. Can
-  # help avoid duplicating the logic used to create a given timber activity.
+  def self.wait_until
+    require "timeout"
+    Timeout.timeout(10) { sleep(0.1) until yield }
+  end
+
+  # Allows you to trigger a subscribe method without having to actually move
+  # through the controller. Can help avoid duplicating the logic used to create
+  # a given timber activity.
   #
-  # controller_action - Controller name and action name in shorthand notation (e.g. 'posts#new')
-  # current_user      - The current user instance (an object) or id (an integer)
-  # params            - Any additional params which you'd like added to the payload.
+  # controller_action - Shorthand controller/action notation (e.g. 'posts#new')
+  # current_user      - Current user instance (an object) or id (an integer)
+  # params            - Any additional params you'd like added to the payload
   #
   # Examples
   #
@@ -40,13 +45,14 @@ module Timber
     })
   end
 
-  # Allow client apps to use +link_to+ within a +subscribe+ block.
+  # Allow client applications to use `link_to` within a `subscribe` block.
   #
   def self.link_to(*args, &block)
     ActionController::Base.helpers.link_to(*args, &block)
   end
 
-  # Allow client apps to use their custom url helpers within a +subscribe+ block.
+  # Allow client applications to use their custom URL helpers within a
+  # `subscribe` block.
   #
   def self.method_missing(method, *args, &blk)
     if method =~ /_path$/

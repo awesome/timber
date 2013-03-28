@@ -57,6 +57,7 @@ describe Timber do
   end
 
   describe "class methods" do
+
     describe "trigger" do
       it "should trigger the underlining timber activity" do
         ActiveSupport::Notifications.should_receive(:instrument).with(
@@ -65,6 +66,27 @@ describe Timber do
           params: { controller: 'posts', action: 'create', post_id: 88 }
         )
         Timber.trigger("posts#create", @current_user, { post_id: 88 })
+      end
+    end
+
+    describe "link_to" do
+      it "should delegate to the standard Rails `link_to` method" do
+        ActionController::Base.should_receive(:helpers).and_return(helpers = mock)
+        helpers.should_receive(:link_to).with("My Antonia", "http://test.com")
+        Timber.link_to("My Antonia", "http://test.com")
+      end
+    end
+
+    describe "wait_until" do
+      it "should raise a timeout error if the code fails to execute" do
+        lambda {
+          Timber.wait_until { true }
+        }.should_not raise_error
+      end
+      it "should not raise a timeout error if the code succeeds" do
+        lambda {
+          Timber.wait_until { false }
+        }.should raise_error(Timeout::Error)
       end
     end
   end
