@@ -7,9 +7,10 @@ module Timber
     serialize :parameters, Hash
     attr_accessible :key, :owner, :parameters, :trackable
 
-    # Give a shorthand for referencing parameters. This is helpful especially in the yaml template, where
-    # writing <tt>parameters[:some_custom_attribute]</tt> over and over can be annoying. So instead you
-    # can write <tt>p[:some_custom_attribute]</tt>.
+    # Give a shorthand for referencing parameters. This is helpful especially
+    # in the yaml template, where writing `parameters[:some_custom_attribute]`
+    # over and over can be annoying. So instead you can write
+    # `p[:some_custom_attribute]`.
     #
     alias_attribute :p, :parameters
 
