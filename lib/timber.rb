@@ -1,9 +1,12 @@
 require "timber/engine"
+require "timber/link_helpers"
 require "timber/notification_payload_customizations"
 require "timber/notification_payload_processor"
 require "timber/rspec/notification_helpers"
 
 module Timber
+  include LinkHelpers
+
   mattr_accessor :default_wait_time
   @@default_wait_time = 10
 
@@ -71,23 +74,6 @@ module Timber
     ActiveSupport::Notifications.instrument("process_action.action_controller", {
       current_user_id: current_user_id, params: full_params
     })
-  end
-
-  # Allow client applications to use `link_to` within a `subscribe` block.
-  #
-  def self.link_to(*args, &block)
-    ActionController::Base.helpers.link_to(*args, &block)
-  end
-
-  # Allow client applications to use their custom URL helpers within a
-  # `subscribe` block.
-  #
-  def self.method_missing(method, *args, &blk)
-    if method =~ /_path$/ || method =~ /_url$/
-      Rails.application.routes.url_helpers.send(method, *args, &blk)
-    else
-      super
-    end
   end
 
 end
