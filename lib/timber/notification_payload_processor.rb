@@ -32,5 +32,10 @@ module Timber
     def action
       params[:action]
     end
+
+    def method_missing(method, *args, &block)
+      params.has_key?(method) ? params[method] : super
+    end
+
   end
 end

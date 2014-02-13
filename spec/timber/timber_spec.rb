@@ -61,7 +61,7 @@ describe Timber do
     describe "trigger" do
       it "should trigger the underlining timber activity" do
         ActiveSupport::Notifications.should_receive(:instrument).with(
-          "process_action.action_controller",
+          "posts#create",
           current_user_id: @current_user.id,
           params: { controller: 'posts', action: 'create', post_id: 88 }
         )
@@ -74,22 +74,6 @@ describe Timber do
         ActionController::Base.should_receive(:helpers).and_return(helpers = mock)
         helpers.should_receive(:link_to).with("My Antonia", "http://test.com")
         Timber.link_to("My Antonia", "http://test.com")
-      end
-    end
-
-    describe "patient_lookup" do
-      it "should raise a timeout error if the code fails to execute" do
-        lambda {
-          Timber.patient_lookup { true }
-        }.should_not raise_error
-      end
-      it "should not raise a timeout error if the code succeeds" do
-        lambda {
-          Timber.patient_lookup { false }
-        }.should raise_error(Timeout::Error)
-      end
-      it "should return the result of the yielded block" do
-        Timber.patient_lookup { 1 }.should == 1
       end
     end
   end
