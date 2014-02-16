@@ -4,11 +4,6 @@ module Timber
 
     protected
 
-    def append_info_to_payload(payload)
-      super
-      payload[:current_user_id] = current_user.try(:id)
-    end
-
     module ClassMethods
       def log_process_action(payload)
         messages, current_user_id = super, payload[:current_user_id]

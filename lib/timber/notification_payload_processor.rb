@@ -17,10 +17,6 @@ module Timber
       )
     end
 
-    def current_user
-      User.find(payload[:current_user_id]) if payload[:current_user_id]
-    end
-
     def processed?(controller_action)
       controller_action == "#{controller}##{action}"
     end
