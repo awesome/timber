@@ -10,7 +10,7 @@ module Timber
       payload = { params: {controller: controller_name, action: action_name} }
       payload[:params].merge!(collect_controller_data)
       payload = payload.with_indifferent_access
-      Timber::ActivityNotifier.trigger_activity("#{controller_name}##{action_name}", payload)
+      trigger_activity("#{controller_name}##{action_name}", payload)
     end
 
     def collect_controller_data

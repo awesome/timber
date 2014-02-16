@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    timber (0.1.6)
+    timber (0.2.0)
       rails (~> 3.2.3)
 
 GEM
