@@ -8,7 +8,6 @@ module Timber
         Time.now,                                     # start time
         5.seconds.from_now,                           # finish time
         {                                             # payload
-          current_user_id: opts[:current_user].id,
           params: {
             controller: opts[:controller],
             action: opts[:action]
