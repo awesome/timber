@@ -37,13 +37,10 @@ module Timber
   #
   #   Timber.trigger("article#create", @user, { publication_id: 88 })
   #
-  def self.trigger(controller_action, current_user, params)
+  def self.trigger(controller_action, params)
     controller, action = controller_action.split('#')
     full_params = { controller: controller, action: action }.merge(params)
-    current_user_id = current_user.respond_to?(:id) ? current_user.id : current_user
-    ActiveSupport::Notifications.instrument(controller_action, {
-      current_user_id: current_user_id, params: full_params
-    })
+    ActiveSupport::Notifications.instrument controller_action, {params: full_params}
   end
 
 end
