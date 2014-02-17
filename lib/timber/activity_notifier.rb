@@ -7,10 +7,12 @@ module Timber
     end
 
     def trigger_activity_logging
-      payload = { params: {controller: controller_name, action: action_name} }
-      payload[:params].merge!(collect_controller_data)
-      payload = payload.with_indifferent_access
-      trigger_activity("#{controller_name}##{action_name}", payload)
+      if status == 200 || status == 201
+        payload = { params: {controller: controller_name, action: action_name} }
+        payload[:params].merge!(collect_controller_data)
+        payload = payload.with_indifferent_access
+        trigger_activity("#{controller_name}##{action_name}", payload)
+      end
     end
 
     def collect_controller_data
